@@ -15,6 +15,8 @@ pub fn build(b: *std.Build) !void {
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
 
+    const duck_dep = b.dependency("libduckdb", .{});
+
     var duck_module = b.createModule(.{
         .source_file = .{ .path = "src/main.zig" },
     });
@@ -22,7 +24,7 @@ pub fn build(b: *std.Build) !void {
     try b.modules.put(b.dupe("duck"), duck_module);
 
     const lib = b.addStaticLibrary(.{
-        .name = "duckdb",
+        .name = "duck",
         // In this case the main source file is merely a path, however, in more
         // complicated build scripts, this could be a generated file.
         .root_source_file = .{ .path = "src/main.zig" },
@@ -30,10 +32,12 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
 
-    lib.addIncludePath("include");
-    lib.addLibraryPath("lib");
-    lib.linkSystemLibraryName("duckdb");
-    b.installLibFile("lib/libduckdb.so", "libduckdb.so");
+    //lib.linkSystemLibraryName("duckdb");
+    lib.linkLibrary(duck_dep.artifact("duck"));
+
+    lib.installLibraryHeaders(duck_dep.artifact("duck"));
+    const duck_install_step = b.addInstallArtifact(lib);
+    b.getInstallStep().dependOn(&duck_install_step.step);
 
     // This declares intent for the library to be installed into the standard
     // location when the user invokes the "install" step (the default step when
