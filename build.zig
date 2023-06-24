@@ -39,8 +39,7 @@ pub fn build(b: *std.Build) !void {
     lib.linkLibrary(duck_dep.artifact("duckdb"));
 
     lib.installLibraryHeaders(duck_dep.artifact("duckdb"));
-    //const duck_install_step = b.addInstallArtifact(lib);
-    //b.getInstallStep().dependOn(&duck_install_step.step);
+    // b.installArtifact(duck_dep.artifact("duckdb"));
 
     // This declares intent for the library to be installed into the standard
     // location when the user invokes the "install" step (the default step when
