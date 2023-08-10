@@ -35,6 +35,9 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
 
+    const path = try std.fmt.allocPrint(b.allocator, "{s}/lib", .{b.install_prefix});
+    defer b.allocator.free(path);
+    lib.addLibraryPath(.{ .path = path });
     //lib.linkSystemLibraryName("duckdb");
     lib.linkLibrary(duck_dep.artifact("duckdb"));
 
