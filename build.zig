@@ -52,10 +52,15 @@ pub fn build(b: *std.Build) !void {
     // Creates a step for unit testing. This only builds the test executable
     // but does not run it.
     const unit_tests = b.addTest(.{
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = .{ .path = "src/test.zig" },
         .target = target,
         .optimize = optimize,
     });
+    unit_tests.addIncludePath(.{ .path = "zig-out/include" });
+    unit_tests.step.dependOn(b.getInstallStep());
+    unit_tests.linkLibC();
+    unit_tests.addLibraryPath(.{ .path = "zig-out/lib" });
+    unit_tests.linkLibrary(duck_dep.artifact("duckdb"));
 
     const run_unit_tests = b.addRunArtifact(unit_tests);
 

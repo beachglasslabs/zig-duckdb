@@ -76,3 +76,19 @@ pub fn value(_: *const Self, allocator: std.mem.Allocator, result: *duckdb.duckd
     defer duckdb.duckdb_free(val);
     return try allocator.dupe(u8, std.mem.span(val));
 }
+
+pub fn boolean(_: *const Self, result: *duckdb.duckdb_result, row: usize, col: usize) bool {
+    return duckdb.duckdb_value_boolean(result, col, row);
+}
+
+pub fn isNull(_: *const Self, result: *duckdb.duckdb_result, row: usize, col: usize) bool {
+    return duckdb.duckdb_value_is_null(result, col, row);
+}
+
+pub fn optional(self: *const Self, allocator: std.mem.Allocator, result: *duckdb.duckdb_result, row: usize, col: usize) !?[]const u8 {
+    if (self.isNull(result, col, row)) {
+        return null;
+    } else {
+        return try self.value(allocator, result, col, row);
+    }
+}
