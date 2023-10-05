@@ -44,11 +44,13 @@ pub fn deinit(self: *Self) void {
     duckdb.duckdb_close(&self.db);
 }
 
+// TODO sanitize string
 pub fn query(self: *const Self, query_str: []const u8) !void {
     var result = try self.queryResult(query_str);
     defer self.freeResult(&result);
 }
 
+// TODO sanitize string
 pub fn queryResult(self: *const Self, query_str: []const u8) !duckdb.duckdb_result {
     var result: duckdb.duckdb_result = undefined;
     std.debug.print("duckdb: query sql {s}\n", .{query_str});
