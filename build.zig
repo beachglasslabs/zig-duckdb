@@ -21,15 +21,34 @@ pub fn build(b: *std.Build) !void {
         .source_file = .{ .path = "src/main.zig" },
     });
 
+    // (re-)add modules from libduckdb
+    _ = b.addModule("libduckdb.include", .{
+        .source_file = .{ .path = duck_dep.builder.pathFromRoot(
+            duck_dep.module("libduckdb.include").source_file.path,
+        ) },
+    });
+
+    _ = b.addModule("libduckdb.lib", .{
+        .source_file = .{ .path = duck_dep.builder.pathFromRoot(
+            duck_dep.module("libduckdb.lib").source_file.path,
+        ) },
+    });
+
+    _ = b.addModule("duckdb.h", .{
+        .source_file = .{ .path = duck_dep.builder.pathFromRoot(
+            duck_dep.module("duckdb.h").source_file.path,
+        ) },
+    });
+
     _ = b.addModule("libduckdb.so", .{
         .source_file = .{ .path = duck_dep.builder.pathFromRoot(
             duck_dep.module("libduckdb.so").source_file.path,
         ) },
     });
 
-    _ = b.installLibFile(duck_dep.builder.pathFromRoot(
-        duck_dep.module("libduckdb.so").source_file.path,
-    ), "libduckdb.so");
+    // _ = b.installLibFile(duck_dep.builder.pathFromRoot(
+    //     duck_dep.module("libduckdb.so").source_file.path,
+    // ), "libduckdb.so");
 
     const lib = b.addStaticLibrary(.{
         .name = "duck",
@@ -71,7 +90,9 @@ pub fn build(b: *std.Build) !void {
     unit_tests.linkSystemLibraryName("duckdb");
 
     const run_unit_tests = b.addRunArtifact(unit_tests);
-    run_unit_tests.setEnvironmentVariable("LD_LIBRARY_PATH", "zig-out/lib");
+    run_unit_tests.setEnvironmentVariable("LD_LIBRARY_PATH", duck_dep.builder.pathFromRoot(
+        duck_dep.module("libduckdb.lib").source_file.path,
+    ));
 
     // Similar to creating the run step earlier, this exposes a `test` step to
     // the `zig build --help` menu, providing a way for the user to request
