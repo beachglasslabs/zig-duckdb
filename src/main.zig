@@ -16,24 +16,24 @@ pub fn init(db_path: ?[]const u8) !Self {
 
     if (db_path) |db_file| {
         if (duckdb.duckdb_open(db_file.ptr, &self.db) == duckdb.DuckDBError) {
-            std.debug.print("duckdb: error opening db {s}\n", .{db_file});
+            std.log.err("duckdb: error opening db {s}\n", .{db_file});
             return error.DuckDBError;
         } else {
-            std.debug.print("duckdb: db opened {s}\n", .{db_file});
+            std.log.info("duckdb: db opened {s}\n", .{db_file});
         }
     } else {
         if (duckdb.duckdb_open(null, &self.db) == duckdb.DuckDBError) {
-            std.debug.print("duckdb: error opening in-memory db\n", .{});
+            std.log.err("duckdb: error opening in-memory db\n", .{});
             return error.DuckDBError;
         } else {
-            std.debug.print("duckdb: opened in-memory db\n", .{});
+            std.log.info("duckdb: opened in-memory db\n", .{});
         }
     }
     if (duckdb.duckdb_connect(self.db, &self.conn) == duckdb.DuckDBError) {
-        std.debug.print("duckdb: error connecting to db\n", .{});
+        std.log.err("duckdb: error connecting to db\n", .{});
         return error.DuckDBError;
     } else {
-        std.debug.print("duckdb: db connected\n", .{});
+        std.log.info("duckdb: db connected\n", .{});
     }
 
     return self;
@@ -53,9 +53,9 @@ pub fn query(self: *const Self, query_str: []const u8) !void {
 // TODO sanitize string
 pub fn queryResult(self: *const Self, query_str: []const u8) !duckdb.duckdb_result {
     var result: duckdb.duckdb_result = undefined;
-    std.debug.print("duckdb: query sql {s}\n", .{query_str});
+    std.log.debug("duckdb: query sql {s}\n", .{query_str});
     if (duckdb.duckdb_query(self.conn, query_str.ptr, &result) == duckdb.DuckDBError) {
-        std.debug.print("duckdb: query error {s}\n", .{duckdb.duckdb_result_error(&result)});
+        std.log.err("duckdb: query error {s}\n", .{duckdb.duckdb_result_error(&result)});
         return error.DuckDBError;
     }
     return result;

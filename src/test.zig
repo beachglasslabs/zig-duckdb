@@ -13,7 +13,6 @@ test "boolean" {
     defer duck.freeResult(&result);
     try std.testing.expect(duck.countRows(&result) == 1);
     var true_result = duck.boolean(&result, 0, 0);
-    std.debug.print("found {} result\n", .{true_result});
     try std.testing.expect(true_result == true);
     var false_sql = try std.fmt.allocPrintZ(std.testing.allocator, "INSERT INTO test_bool_table (SELECT {}) RETURNING test_bool;", .{false});
     defer std.testing.allocator.free(false_sql);
@@ -21,7 +20,6 @@ test "boolean" {
     defer duck.freeResult(&result2);
     try std.testing.expect(duck.countRows(&result2) == 1);
     var false_result = duck.boolean(&result2, 0, 0);
-    std.debug.print("found {} result\n", .{false_result});
     try std.testing.expect(false_result == false);
 }
 
@@ -30,7 +28,6 @@ test "optional" {
     defer duck.deinit();
 
     var opt_val: ?[]const u8 = "dog";
-    std.debug.print("optional value is {?s}\n", .{opt_val});
     try duck.query("CREATE TABLE test_optional_table (test_optional varchar(32));");
     var str_sql = try std.fmt.allocPrintZ(std.testing.allocator, "INSERT INTO test_optional_table(test_optional) VALUES ('{?s}') RETURNING test_optional;", .{opt_val});
     defer std.testing.allocator.free(str_sql);
