@@ -71,6 +71,7 @@ pub fn build(b: *std.Build) !void {
     unit_tests.linkSystemLibraryName("duckdb");
 
     const run_unit_tests = b.addRunArtifact(unit_tests);
+    run_unit_tests.setEnvironmentVariable("LD_LIBRARY_PATH", "zig-out/lib");
 
     // Similar to creating the run step earlier, this exposes a `test` step to
     // the `zig build --help` menu, providing a way for the user to request
