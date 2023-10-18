@@ -1,11 +1,11 @@
 .{
     .name = "duck",
-    .version = "0.0.3",
+    .version = "0.0.4",
 
     .dependencies = .{
         .duckdb = .{
-            .url = "https://github.com/beachglasslabs/libduckdb/archive/refs/tags/v0.8.1.tar.gz",
-            .hash = "1220e6f53b5a0660cd2fcd2ec33bd22c8c3e6b5b18718b556d70a91861728ed00b12",
+            .url = "https://github.com/beachglasslabs/libduckdb/archive/refs/tags/v0.9.1.tar.gz",
+            .hash = "12205b5968f65bd0e5c5498b48bce119d58bc296225fc51c35f79371dcfa1163f506",
         },
     },
 }
