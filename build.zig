@@ -15,16 +15,21 @@ pub fn build(b: *std.Build) !void {
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
 
-    const duck_dep = b.dependency("duckdb", .{
-        .target = target,
-        .optimize = optimize,
-    });
+    const duck_dep = b.dependency("duckdb", .{});
 
-    var duck_module = b.createModule(.{
+    _ = b.addModule("duck", .{
         .source_file = .{ .path = "src/main.zig" },
     });
 
-    try b.modules.put(b.dupe("duck"), duck_module);
+    _ = b.addModule("libduckdb.so", .{
+        .source_file = .{ .path = duck_dep.builder.pathFromRoot(
+            duck_dep.module("libduckdb.so").source_file.path,
+        ) },
+    });
+
+    _ = b.installLibFile(duck_dep.builder.pathFromRoot(
+        duck_dep.module("libduckdb.so").source_file.path,
+    ), "libduckdb.so");
 
     const lib = b.addStaticLibrary(.{
         .name = "duck",
@@ -35,14 +40,13 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
 
-    const path = try std.fmt.allocPrint(b.allocator, "{s}/lib", .{b.install_prefix});
-    defer b.allocator.free(path);
-    lib.addLibraryPath(.{ .path = path });
-    //lib.linkSystemLibraryName("duckdb");
-    lib.linkLibrary(duck_dep.artifact("duckdb"));
-
-    lib.installLibraryHeaders(duck_dep.artifact("duckdb"));
-    // b.installArtifact(duck_dep.artifact("duckdb"));
+    lib.addLibraryPath(.{ .path = duck_dep.builder.pathFromRoot(
+        duck_dep.module("libduckdb.lib").source_file.path,
+    ) });
+    lib.addIncludePath(.{ .path = duck_dep.builder.pathFromRoot(
+        duck_dep.module("libduckdb.include").source_file.path,
+    ) });
+    lib.linkSystemLibraryName("duckdb");
 
     // This declares intent for the library to be installed into the standard
     // location when the user invokes the "install" step (the default step when
@@ -56,11 +60,15 @@ pub fn build(b: *std.Build) !void {
         .target = target,
         .optimize = optimize,
     });
-    unit_tests.addIncludePath(.{ .path = "zig-out/include" });
     unit_tests.step.dependOn(b.getInstallStep());
     unit_tests.linkLibC();
-    unit_tests.addLibraryPath(.{ .path = "zig-out/lib" });
-    unit_tests.linkLibrary(duck_dep.artifact("duckdb"));
+    unit_tests.addLibraryPath(.{ .path = duck_dep.builder.pathFromRoot(
+        duck_dep.module("libduckdb.lib").source_file.path,
+    ) });
+    unit_tests.addIncludePath(.{ .path = duck_dep.builder.pathFromRoot(
+        duck_dep.module("libduckdb.include").source_file.path,
+    ) });
+    unit_tests.linkSystemLibraryName("duckdb");
 
     const run_unit_tests = b.addRunArtifact(unit_tests);
 
