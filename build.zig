@@ -65,17 +65,6 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
 
-    lib.addLibraryPath(.{ .path = duckdb.builder.pathFromRoot(
-        duckdb.module("libduckdb.library").source_file.path,
-    ) });
-    lib.addIncludePath(.{ .path = duckdb.builder.pathFromRoot(
-        duckdb.module("libduckdb.include").source_file.path,
-    ) });
-    lib.linkLibCpp();
-    lib.linkSystemLibraryName("duckdb_static");
-    // lib.installLibraryHeaders(duckdb.artifact("duckdb"));
-    // lib.linkLibrary(duckdb.artifact("duckdb"));
-
     // This declares intent for the library to be installed into the standard
     // location when the user invokes the "install" step (the default step when
     // running `zig build`).
@@ -95,11 +84,13 @@ pub fn build(b: *std.Build) !void {
     unit_tests.addIncludePath(.{ .path = duckdb.builder.pathFromRoot(
         duckdb.module("libduckdb.include").source_file.path,
     ) });
-    unit_tests.linkLibCpp();
     unit_tests.linkSystemLibraryName("duckdb_static");
-    // unit_tests.linkLibC();
+    // unit_tests.addObjectFile(.{ .path = duckdb.builder.pathFromRoot(
+    //     duckdb.module("libduckdb.a").source_file.path,
+    // ) });
     // unit_tests.linkLibrary(duckdb.artifact("duckdb"));
-    // unit_tests.linkLibrary(lib);
+    unit_tests.linkLibCpp();
+    unit_tests.linkLibrary(lib);
 
     const run_unit_tests = b.addRunArtifact(unit_tests);
     // run_unit_tests.setEnvironmentVariable("LD_LIBRARY_PATH", duck_dep.builder.pathFromRoot(
