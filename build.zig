@@ -59,14 +59,6 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
 
-    lib.addLibraryPath(.{ .path = duckdb.builder.pathFromRoot(
-        duckdb.module("libduckdb.library").source_file.path,
-    ) });
-    lib.addIncludePath(.{ .path = duckdb.builder.pathFromRoot(
-        duckdb.module("libduckdb.include").source_file.path,
-    ) });
-    lib.linkSystemLibraryName("duckdb");
-
     // This declares intent for the library to be installed into the standard
     // location when the user invokes the "install" step (the default step when
     // running `zig build`).
