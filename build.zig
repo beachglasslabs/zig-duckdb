@@ -22,24 +22,30 @@ pub fn build(b: *std.Build) !void {
     });
 
     // (re-)add modules from libduckdb
-    // _ = b.addModule("libduckdb.include", .{
-    //     .source_file = .{ .path = duck_dep.builder.pathFromRoot(
-    //         duck_dep.module("libduckdb.include").source_file.path,
-    //     ) },
-    // });
-    //
-    // _ = b.addModule("libduckdb.lib", .{
-    //     .source_file = .{ .path = duck_dep.builder.pathFromRoot(
-    //         duck_dep.module("libduckdb.lib").source_file.path,
-    //     ) },
-    // });
-    //
-    // _ = b.addModule("duckdb.h", .{
-    //     .source_file = .{ .path = duck_dep.builder.pathFromRoot(
-    //         duck_dep.module("duckdb.h").source_file.path,
-    //     ) },
-    // });
-    //
+    _ = b.addModule("libduckdb.include", .{
+        .source_file = .{ .path = duckdb.builder.pathFromRoot(
+            duckdb.module("libduckdb.include").source_file.path,
+        ) },
+    });
+
+    _ = b.addModule("libduckdb.library", .{
+        .source_file = .{ .path = duckdb.builder.pathFromRoot(
+            duckdb.module("libduckdb.library").source_file.path,
+        ) },
+    });
+
+    _ = b.addModule("libduckdb.h", .{
+        .source_file = .{ .path = duckdb.builder.pathFromRoot(
+            duckdb.module("libduckdb.h").source_file.path,
+        ) },
+    });
+
+    _ = b.addModule("libduckdb.a", .{
+        .source_file = .{ .path = duckdb.builder.pathFromRoot(
+            duckdb.module("libduckdb.a").source_file.path,
+        ) },
+    });
+
     // _ = b.addModule("libduckdb.so", .{
     //     .source_file = .{ .path = duck_dep.builder.pathFromRoot(
     //         duck_dep.module("libduckdb.so").source_file.path,
@@ -59,15 +65,16 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
 
-    // lib.addLibraryPath(.{ .path = duck_dep.builder.pathFromRoot(
-    //     duck_dep.module("libduckdb.lib").source_file.path,
-    // ) });
-    // lib.addIncludePath(.{ .path = duck_dep.builder.pathFromRoot(
-    //     duck_dep.module("libduckdb.include").source_file.path,
-    // ) });
-    // lib.linkSystemLibraryName("duckdb");
-    lib.installLibraryHeaders(duckdb.artifact("duckdb"));
-    lib.linkLibrary(duckdb.artifact("duckdb"));
+    lib.addLibraryPath(.{ .path = duckdb.builder.pathFromRoot(
+        duckdb.module("libduckdb.library").source_file.path,
+    ) });
+    lib.addIncludePath(.{ .path = duckdb.builder.pathFromRoot(
+        duckdb.module("libduckdb.include").source_file.path,
+    ) });
+    lib.linkLibCpp();
+    lib.linkSystemLibraryName("duckdb_static");
+    // lib.installLibraryHeaders(duckdb.artifact("duckdb"));
+    // lib.linkLibrary(duckdb.artifact("duckdb"));
 
     // This declares intent for the library to be installed into the standard
     // location when the user invokes the "install" step (the default step when
@@ -82,17 +89,17 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
     unit_tests.step.dependOn(b.getInstallStep());
-    // unit_tests.linkLibC();
-    // unit_tests.addLibraryPath(.{ .path = duck_dep.builder.pathFromRoot(
-    //     duck_dep.module("libduckdb.lib").source_file.path,
-    // ) });
-    // unit_tests.addIncludePath(.{ .path = duck_dep.builder.pathFromRoot(
-    //     duck_dep.module("libduckdb.include").source_file.path,
-    // ) });
-    // unit_tests.linkSystemLibraryName("duckdb");
+    unit_tests.addLibraryPath(.{ .path = duckdb.builder.pathFromRoot(
+        duckdb.module("libduckdb.library").source_file.path,
+    ) });
+    unit_tests.addIncludePath(.{ .path = duckdb.builder.pathFromRoot(
+        duckdb.module("libduckdb.include").source_file.path,
+    ) });
     unit_tests.linkLibCpp();
-    unit_tests.linkLibrary(duckdb.artifact("duckdb"));
-    unit_tests.linkLibrary(lib);
+    unit_tests.linkSystemLibraryName("duckdb_static");
+    // unit_tests.linkLibC();
+    // unit_tests.linkLibrary(duckdb.artifact("duckdb"));
+    // unit_tests.linkLibrary(lib);
 
     const run_unit_tests = b.addRunArtifact(unit_tests);
     // run_unit_tests.setEnvironmentVariable("LD_LIBRARY_PATH", duck_dep.builder.pathFromRoot(
