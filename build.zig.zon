@@ -4,10 +4,8 @@
     .paths = .{"."},
     .dependencies = .{
         .duckdb = .{
-            .url = "https://github.com/beachglasslabs/libduckdb/archive/refs/tags/v0.9.1.4.tar.gz",
-            .hash = "1220c57adc5dbc181c443ed471f39d6d310b62c5d539b92cd42eba65a93c36fae0cf",
-            // .url = "https://github.com/beachglasslabs/libduckdb/archive/refs/tags/v0.9.1.tar.gz",
-            // .hash = "12205b5968f65bd0e5c5498b48bce119d58bc296225fc51c35f79371dcfa1163f506",
+            .url = "https://github.com/beachglasslabs/libduckdb/archive/refs/tags/v0.9.1.6.tar.gz",
+            .hash = "12201d053f086ca5ef37eb970298c7beada0ab7dd8857b1712e8cd523f64c119466f",
         },
     },
 }
